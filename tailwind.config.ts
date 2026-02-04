@@ -89,7 +89,7 @@ export default {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
       backgroundImage: {
-        "gradient-primary": "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(25 100% 45%) 100%)",
+        "gradient-primary": "var(--gradient-primary, linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(25 100% 45%) 100%))",
         "gradient-card": "linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 8%) 100%)",
       },
       boxShadow: {
