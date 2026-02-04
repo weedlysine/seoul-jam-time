@@ -13,17 +13,21 @@ export function TimeSlotGrid({ slots, compact = false }: TimeSlotGridProps) {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">오늘 빈 시간</span>
-          <span className="text-xs font-semibold text-available">
+          <span className="text-xs text-muted-foreground">빈 시간</span>
+          <span className={cn(
+            "text-xs font-semibold",
+            availableCount > 5 ? "text-available" : 
+            availableCount > 0 ? "text-partial" : "text-muted-foreground"
+          )}>
             {availableCount}개 가능
           </span>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           {slots.map((slot) => (
             <div
               key={slot.time}
               className={cn(
-                "flex-1 h-1.5 rounded-full transition-all",
+                "flex-1 h-2 rounded-sm transition-all",
                 slot.available ? "bg-available" : "bg-booked"
               )}
               title={`${slot.time} - ${slot.available ? "예약 가능" : "예약됨"}`}
@@ -31,9 +35,9 @@ export function TimeSlotGrid({ slots, compact = false }: TimeSlotGridProps) {
           ))}
         </div>
         <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>10:00</span>
-          <span>16:00</span>
-          <span>22:00</span>
+          <span>10시</span>
+          <span>17시</span>
+          <span>24시</span>
         </div>
       </div>
     );
@@ -54,13 +58,13 @@ export function TimeSlotGrid({ slots, compact = false }: TimeSlotGridProps) {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-6 sm:grid-cols-7 gap-2">
+      <div className="grid grid-cols-5 sm:grid-cols-8 gap-2">
         {slots.map((slot) => (
           <button
             key={slot.time}
             disabled={!slot.available}
             className={cn(
-              "time-slot flex flex-col items-center justify-center py-2 px-1 rounded-lg border text-xs font-medium",
+              "time-slot flex flex-col items-center justify-center py-2.5 px-1 rounded-lg border text-xs font-medium",
               slot.available
                 ? "time-slot-available"
                 : "time-slot-booked"
