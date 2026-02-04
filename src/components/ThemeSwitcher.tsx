@@ -66,10 +66,24 @@ export function ThemeSwitcher() {
     root.style.setProperty("--popover-foreground", colors.foreground);
     root.style.setProperty("--card-foreground", colors.foreground);
     
-    // Slate(다크)는 단색, Cafe(라이트)는 그라데이션
+    // 사이드바 변수 설정
     if (themeMode === "dark") {
+      root.style.setProperty("--sidebar-background", "220 15% 10%");
+      root.style.setProperty("--sidebar-foreground", "220 10% 90%");
+      root.style.setProperty("--sidebar-primary", colors.primary);
+      root.style.setProperty("--sidebar-primary-foreground", "0 0% 100%");
+      root.style.setProperty("--sidebar-accent", "220 12% 18%");
+      root.style.setProperty("--sidebar-accent-foreground", "220 10% 95%");
+      root.style.setProperty("--sidebar-border", "220 10% 20%");
       root.style.setProperty("--gradient-primary", `hsl(${colors.primary})`);
     } else {
+      root.style.setProperty("--sidebar-background", "30 20% 96%");
+      root.style.setProperty("--sidebar-foreground", "30 10% 25%");
+      root.style.setProperty("--sidebar-primary", colors.primary);
+      root.style.setProperty("--sidebar-primary-foreground", "30 15% 98%");
+      root.style.setProperty("--sidebar-accent", "30 15% 90%");
+      root.style.setProperty("--sidebar-accent-foreground", "30 10% 15%");
+      root.style.setProperty("--sidebar-border", "30 15% 85%");
       root.style.setProperty("--gradient-primary", `linear-gradient(135deg, hsl(${colors.primary}) 0%, hsl(25 50% 40%) 100%)`);
     }
     
