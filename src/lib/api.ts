@@ -43,19 +43,26 @@ export interface SearchParams {
 // 목업 데이터 (서버가 꺼져있을 때 사용)
 const MOCK_DATA: Record<string, { times: string[]; url: string }[]> = {
   "라온합주실": [
+    // 거의 다 비어있는 케이스
+    { times: ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "24:00"], url: "https://booking.naver.com/laon" },
     { times: ["10:00", "11:00", "14:00", "15:00", "20:00", "21:00"], url: "https://booking.naver.com/laon" },
   ],
   "사운드홀릭": [
+    // 많이 비어있는 케이스
+    { times: ["10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "18:00", "19:00", "22:00", "23:00"], url: "https://booking.naver.com/soundholic" },
     { times: ["12:00", "13:00", "18:00", "19:00", "22:00"], url: "https://booking.naver.com/soundholic" },
   ],
   "오렌지플레이": [
     { times: ["10:00", "16:00", "17:00", "23:00"], url: "https://booking.naver.com/orangeplay" },
   ],
   "홍대노리터": [
-    { times: ["11:00", "12:00", "13:00", "14:00"], url: "https://booking.naver.com/noritor" },
+    // 거의 다 비어있는 케이스
+    { times: ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "20:00", "21:00", "22:00"], url: "https://booking.naver.com/noritor" },
   ],
   "플레이스튜디오": [
     { times: ["15:00", "16:00", "17:00", "18:00", "19:00"], url: "https://booking.naver.com/playstudio" },
+    // 아예 다 비어있는 케이스
+    { times: ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "24:00"], url: "https://booking.naver.com/playstudio" },
   ],
 };
 
