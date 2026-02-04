@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
 
 interface DateFilterProps {
   selectedDate: Date;
@@ -17,12 +18,21 @@ interface DateFilterProps {
 
 export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const today = new Date();
-  const quickDates = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+  const quickDates = Array.from({ length: 14 }, (_, i) => addDays(today, i));
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* 캘린더 피커 */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between">
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -45,13 +55,13 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
           </PopoverContent>
         </Popover>
 
+        {/* 스크롤 버튼 */}
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={() => onDateChange(addDays(selectedDate, -1))}
-            disabled={isSameDay(selectedDate, today)}
+            onClick={scrollLeft}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -59,32 +69,51 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={() => onDateChange(addDays(selectedDate, 1))}
+            onClick={scrollRight}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* 빠른 날짜 선택 */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {quickDates.map((date) => (
-          <button
-            key={date.toISOString()}
-            onClick={() => onDateChange(date)}
-            className={cn(
-              "flex flex-col items-center min-w-[52px] px-3 py-2 rounded-xl transition-all duration-200",
-              isSameDay(date, selectedDate)
-                ? "bg-primary text-primary-foreground shadow-elevated"
-                : "bg-secondary hover:bg-muted text-foreground"
-            )}
-          >
-            <span className="text-[10px] font-medium opacity-70">
-              {format(date, "EEE", { locale: ko })}
-            </span>
-            <span className="text-lg font-bold">{format(date, "d")}</span>
-          </button>
-        ))}
+      {/* 14일 빠른 날짜 선택 */}
+      <div 
+        ref={scrollRef}
+        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth"
+      >
+        {quickDates.map((date, index) => {
+          const isToday = index === 0;
+          const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+          
+          return (
+            <button
+              key={date.toISOString()}
+              onClick={() => onDateChange(date)}
+              className={cn(
+                "flex flex-col items-center min-w-[48px] px-2 py-2 rounded-xl transition-all duration-200 shrink-0",
+                isSameDay(date, selectedDate)
+                  ? "bg-primary text-primary-foreground shadow-elevated"
+                  : isWeekend
+                    ? "bg-secondary/80 hover:bg-muted text-orange-400"
+                    : "bg-secondary hover:bg-muted text-foreground"
+              )}
+            >
+              <span className={cn(
+                "text-[10px] font-medium",
+                isSameDay(date, selectedDate) ? "opacity-90" : "opacity-60"
+              )}>
+                {isToday ? "오늘" : format(date, "EEE", { locale: ko })}
+              </span>
+              <span className="text-lg font-bold">{format(date, "d")}</span>
+              <span className={cn(
+                "text-[9px]",
+                isSameDay(date, selectedDate) ? "opacity-70" : "opacity-40"
+              )}>
+                {format(date, "M")}월
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
