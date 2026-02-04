@@ -33,12 +33,6 @@ const Index = () => {
     setCurrentStep(2);
   };
 
-  // 합주실 선택 시 자동으로 다음 스텝
-  useEffect(() => {
-    if (selectedRooms.length > 0 && currentStep === 2) {
-      setCurrentStep(3);
-    }
-  }, [selectedRooms, currentStep]);
 
   const handleSearch = useCallback(() => {
     if (selectedRooms.length === 0) {
