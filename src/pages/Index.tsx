@@ -75,10 +75,6 @@ const Index = () => {
     });
   }, [selectedDate, selectedRooms]);
 
-  const availableCount = studios.reduce(
-    (acc, s) => acc + s.timeSlots.filter((t) => t.available).length,
-    0
-  );
 
   const steps = [
     { 
@@ -291,18 +287,6 @@ const Index = () => {
         {/* 결과 영역 */}
         {hasSearched && (
           <section className="space-y-4 pt-4 border-t border-border">
-            {/* 결과 통계 */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-secondary rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{studios.length}</p>
-                <p className="text-xs text-muted-foreground">검색된 합주실</p>
-              </div>
-              <div className="bg-secondary rounded-xl p-4 text-center">
-                <p className="text-2xl font-bold text-available">{availableCount}</p>
-                <p className="text-xs text-muted-foreground">예약 가능 시간</p>
-              </div>
-            </div>
-
             {/* 합주실 목록 */}
             <StudioList 
               studios={studios} 
