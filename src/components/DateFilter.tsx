@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { useRef, useState, useCallback } from "react";
 
 interface DateFilterProps {
   selectedDate: Date;
@@ -20,6 +20,11 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const today = new Date();
   const quickDates = Array.from({ length: 14 }, (_, i) => addDays(today, i));
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // 드래그 스크롤 상태
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftPos, setScrollLeftPos] = useState(0);
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
@@ -28,6 +33,32 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const scrollRight = () => {
     scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
   };
+
+  // 드래그 시작
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeftPos(scrollRef.current.scrollLeft);
+  }, []);
+
+  // 드래그 중
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5; // 스크롤 속도 조절
+    scrollRef.current.scrollLeft = scrollLeftPos - walk;
+  }, [isDragging, startX, scrollLeftPos]);
+
+  // 드래그 종료
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   return (
     <div className="space-y-3">
@@ -76,10 +107,17 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
         </div>
       </div>
 
-      {/* 14일 빠른 날짜 선택 */}
+      {/* 14일 빠른 날짜 선택 - 드래그 스크롤 지원 */}
       <div 
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-smooth"
+        className={cn(
+          "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        )}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
       >
         {quickDates.map((date, index) => {
           const isToday = index === 0;
