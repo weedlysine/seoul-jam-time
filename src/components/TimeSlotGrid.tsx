@@ -6,7 +6,15 @@ interface TimeSlotGridProps {
   availableSlots: TimeSlot[];
 }
 
+// 0시부터 24시까지 전체 시간 (25개 슬롯)
+const FULL_DAY_HOURS = Array.from({ length: 25 }, (_, i) => i);
+
 export function TimeSlotGrid({ slots, availableSlots }: TimeSlotGridProps) {
+  // 예약 가능한 시간을 숫자로 변환 (예: "10:00" -> 10)
+  const availableHours = new Set(
+    availableSlots.map((s) => parseInt(s.time.split(":")[0]))
+  );
+
   if (availableSlots.length === 0) {
     return (
       <div className="py-3 text-center text-sm text-muted-foreground bg-muted/50 rounded-lg">
@@ -31,26 +39,26 @@ export function TimeSlotGrid({ slots, availableSlots }: TimeSlotGridProps) {
         </div>
       </div>
       
-      {/* 전체 시간 바 + 시간 레이블 */}
+      {/* 전체 시간 바 (0시 ~ 24시) + 시간 레이블 */}
       <div className="space-y-1">
         <div className="flex gap-px rounded overflow-hidden">
-          {slots.map((slot) => (
+          {FULL_DAY_HOURS.map((hour) => (
             <div
-              key={slot.time}
+              key={hour}
               className={cn(
                 "flex-1 h-1.5 transition-all",
-                slot.available ? "bg-available" : "bg-muted"
+                availableHours.has(hour) ? "bg-available" : "bg-muted"
               )}
-              title={`${slot.time} - ${slot.available ? "예약 가능" : "예약됨"}`}
+              title={`${hour}:00 - ${availableHours.has(hour) ? "예약 가능" : "예약됨"}`}
             />
           ))}
         </div>
-        {/* 시간 레이블 (10시 ~ 24시) */}
-        <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
-          <span>10</span>
-          <span>14</span>
+        {/* 시간 레이블 (0시 ~ 24시) */}
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>0</span>
+          <span>6</span>
+          <span>12</span>
           <span>18</span>
-          <span>22</span>
           <span>24</span>
         </div>
       </div>
