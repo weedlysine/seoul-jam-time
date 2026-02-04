@@ -1,5 +1,6 @@
 import { Music, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface HeaderProps {
   isLoading?: boolean;
@@ -20,7 +21,7 @@ export function Header({ isLoading, onRefresh }: HeaderProps) {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {isLoading ? (
             <div className="flex items-center gap-1.5 text-xs text-primary">
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -44,6 +45,7 @@ export function Header({ isLoading, onRefresh }: HeaderProps) {
               새로고침
             </Button>
           )}
+          <ThemeSwitcher />
         </div>
       </div>
     </header>
