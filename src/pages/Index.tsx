@@ -26,11 +26,10 @@ const Index = () => {
   
   const cleanupRef = useRef<(() => void) | null>(null);
 
-  // 지역 선택 시 다음 스텝으로 + 기본 전체 선택
+  // 지역 선택 시 다음 스텝으로
   const handleRegionChange = (region: string) => {
     setSelectedRegion(region);
-    // 기본으로 전체 선택
-    setSelectedRooms(regionRooms[region] || []);
+    setSelectedRooms([]);
     setCurrentStep(2);
   };
 
