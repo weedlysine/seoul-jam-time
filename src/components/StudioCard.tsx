@@ -7,10 +7,9 @@ import { TimeSlotGrid } from "./TimeSlotGrid";
 
 interface StudioCardProps {
   studio: Studio;
-  variant?: "wrap" | "scroll" | "fixed";
 }
 
-export function StudioCard({ studio, variant = "wrap" }: StudioCardProps) {
+export function StudioCard({ studio }: StudioCardProps) {
   const availableSlots = studio.timeSlots.filter((s) => s.available);
 
   return (
@@ -30,8 +29,8 @@ export function StudioCard({ studio, variant = "wrap" }: StudioCardProps) {
           </div>
         </div>
 
-        {/* 예약 가능 시간 - 시간만 명확하게 표시 */}
-        <TimeSlotGrid slots={studio.timeSlots} availableSlots={availableSlots} variant={variant} />
+        {/* 예약 가능 시간 */}
+        <TimeSlotGrid slots={studio.timeSlots} availableSlots={availableSlots} />
 
         {/* 예약 버튼 */}
         <Button
