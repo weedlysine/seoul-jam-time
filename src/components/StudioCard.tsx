@@ -1,17 +1,16 @@
-import { ExternalLink, Clock } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Studio } from "@/types/studio";
 import { TimeSlotGrid } from "./TimeSlotGrid";
-import { cn } from "@/lib/utils";
+
 
 interface StudioCardProps {
   studio: Studio;
 }
 
 export function StudioCard({ studio }: StudioCardProps) {
-  const availableCount = studio.timeSlots.filter((s) => s.available).length;
+  const availableSlots = studio.timeSlots.filter((s) => s.available);
 
   return (
     <Card className="group overflow-hidden bg-card border-border card-hover">
@@ -28,24 +27,10 @@ export function StudioCard({ studio }: StudioCardProps) {
               </p>
             )}
           </div>
-          <Badge 
-            className={cn(
-              "shrink-0",
-              availableCount > 5 
-                ? "bg-available/20 text-available border-available/30" 
-                : availableCount > 0 
-                  ? "bg-partial/20 text-partial border-partial/30"
-                  : "bg-booked/20 text-muted-foreground border-booked/30"
-            )}
-            variant="outline"
-          >
-            <Clock className="h-3 w-3 mr-1" />
-            {availableCount}개
-          </Badge>
         </div>
 
-        {/* 시간대 그리드 */}
-        <TimeSlotGrid slots={studio.timeSlots} compact />
+        {/* 예약 가능 시간 - 시간만 명확하게 표시 */}
+        <TimeSlotGrid slots={studio.timeSlots} availableSlots={availableSlots} />
 
         {/* 예약 버튼 */}
         <Button
