@@ -1,12 +1,13 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Search, MapPin, Building2, Calendar, ChevronRight, Check } from "lucide-react";
+import { Search, MapPin, Building2, Calendar, ChevronRight, Check, Map } from "lucide-react";
 import { Header } from "@/components/Header";
 import { RegionSelector } from "@/components/RegionSelector";
 import { RoomSelector } from "@/components/RoomSelector";
 import { DateFilter } from "@/components/DateFilter";
 import { StudioList } from "@/components/StudioList";
+import { KakaoMap } from "@/components/KakaoMap";
 import { Button } from "@/components/ui/button";
 import { Studio, regions, regionRooms } from "@/types/studio";
 import { searchStudios } from "@/lib/api";
@@ -23,6 +24,8 @@ const Index = () => {
   const [studios, setStudios] = useState<Studio[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [mapExpanded, setMapExpanded] = useState(false);
   
   const cleanupRef = useRef<(() => void) | null>(null);
 
@@ -175,20 +178,48 @@ const Index = () => {
         {/* 스텝 2: 합주실 선택 */}
         {currentStep === 2 && selectedRegion && (
           <section className="animate-fade-in">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h2 className="text-2xl font-bold mb-2">
                 <span className="text-primary">{selectedRegion}</span>에서 어느 합주실?
               </h2>
               <p className="text-muted-foreground">검색할 합주실을 선택해주세요</p>
             </div>
-            <div className="max-w-2xl mx-auto">
+            
+            <div className="max-w-3xl mx-auto space-y-4">
+              {/* 지도 토글 버튼 */}
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowMap(!showMap)}
+                  className="gap-2"
+                >
+                  <Map className="h-4 w-4" />
+                  {showMap ? "지도 숨기기" : "지도 보기"}
+                </Button>
+              </div>
+
+              {/* 지도 */}
+              {showMap && (
+                <div className="animate-fade-in">
+                  <KakaoMap
+                    region={selectedRegion}
+                    selectedRooms={selectedRooms}
+                    expanded={mapExpanded}
+                    onToggleExpand={() => setMapExpanded(!mapExpanded)}
+                  />
+                </div>
+              )}
+
+              {/* 합주실 선택 */}
               <RoomSelector
                 region={selectedRegion}
                 selectedRooms={selectedRooms}
                 onRoomsChange={setSelectedRooms}
               />
+              
               {selectedRooms.length > 0 && (
-                <div className="mt-6 flex justify-center">
+                <div className="flex justify-center pt-2">
                   <Button
                     onClick={() => setCurrentStep(3)}
                     className="bg-gradient-primary text-primary-foreground px-8"
