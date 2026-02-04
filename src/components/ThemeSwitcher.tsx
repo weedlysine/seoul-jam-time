@@ -151,13 +151,13 @@ const darkThemes: Theme[] = [
       background: "220 15% 12%",
       foreground: "220 10% 95%",
       card: "220 15% 15%",
-      primary: "215 80% 55%",
+      primary: "210 70% 50%",
       primaryForeground: "0 0% 100%",
       secondary: "220 12% 20%",
       muted: "220 10% 25%",
       mutedForeground: "220 8% 55%",
       border: "220 10% 28%",
-      accent: "215 80% 55%",
+      accent: "210 70% 50%",
       available: "142 76% 45%",
     },
   },
@@ -213,6 +213,14 @@ export function ThemeSwitcher() {
     // Also update ring color
     root.style.setProperty("--ring", theme.colors.primary);
     root.style.setProperty("--input", theme.colors.secondary);
+    
+    // 그라데이션 설정 (Slate는 단색, 나머지는 그라데이션)
+    if (theme.key === "slate") {
+      root.style.setProperty("--gradient-primary", `hsl(${theme.colors.primary})`);
+    } else {
+      root.style.setProperty("--gradient-primary", `linear-gradient(135deg, hsl(${theme.colors.primary}) 0%, hsl(${theme.colors.accent}) 100%)`);
+    }
+    
     setCurrentTheme(theme.key);
   };
 
