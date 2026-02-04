@@ -2,7 +2,6 @@ import { useState, useCallback, useRef } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Search, MapPin, Building2, Calendar, ChevronRight, Check, Map } from "lucide-react";
-import { Header } from "@/components/Header";
 import { RegionSelector } from "@/components/RegionSelector";
 import { RoomSelector } from "@/components/RoomSelector";
 import { DateFilter } from "@/components/DateFilter";
@@ -102,9 +101,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header isLoading={isLoading} />
-      
-      <main className="container py-6 space-y-6">
+      <div className="container py-6 space-y-6">
         {/* 스텝 인디케이터 */}
         <div className="flex items-center justify-center gap-2 py-4">
           {steps.map((s, index) => (
@@ -295,7 +292,7 @@ const Index = () => {
             />
           </section>
         )}
-      </main>
+      </div>
 
       {/* 푸터 */}
       <footer className="border-t border-border mt-12 py-8">
