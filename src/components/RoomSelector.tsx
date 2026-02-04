@@ -1,8 +1,6 @@
 import { cn } from "@/lib/utils";
 import { regionRooms } from "@/types/studio";
-import { Building2, CheckCircle2, Check, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 interface RoomSelectorProps {
   region: string;
@@ -13,7 +11,6 @@ interface RoomSelectorProps {
 export function RoomSelector({ region, selectedRooms, onRoomsChange }: RoomSelectorProps) {
   const rooms = regionRooms[region] || [];
   const allSelected = rooms.length > 0 && selectedRooms.length === rooms.length;
-  const noneSelected = selectedRooms.length === 0;
 
   const toggleRoom = (room: string) => {
     if (selectedRooms.includes(room)) {
@@ -23,49 +20,32 @@ export function RoomSelector({ region, selectedRooms, onRoomsChange }: RoomSelec
     }
   };
 
-  const selectAll = () => {
-    onRoomsChange(rooms);
-  };
-
-  const clearAll = () => {
-    onRoomsChange([]);
-  };
+  const selectAll = () => onRoomsChange(rooms);
+  const clearAll = () => onRoomsChange([]);
 
   return (
-    <div className="space-y-4">
-      {/* 빠른 선택 버튼 */}
-      <div className="flex gap-3">
-        <Button
+    <div className="space-y-3">
+      {/* 전체 선택 / 해제 */}
+      <div className="flex items-center justify-end gap-3 text-sm">
+        <button
           onClick={selectAll}
-          variant={allSelected ? "default" : "outline"}
           className={cn(
-            "flex-1 h-12 text-base font-semibold transition-all",
-            allSelected 
-              ? "bg-gradient-primary text-primary-foreground" 
-              : "hover:border-primary hover:text-primary"
+            "hover:underline",
+            allSelected ? "text-primary font-medium" : "text-muted-foreground"
           )}
         >
-          <Check className="h-5 w-5 mr-2" />
-          전체 선택 ({rooms.length}개)
-        </Button>
-        <Button
+          전체 선택
+        </button>
+        <span className="text-border">|</span>
+        <button
           onClick={clearAll}
-          variant="outline"
-          className="h-12 px-4"
-          disabled={noneSelected}
+          className="text-muted-foreground hover:underline"
         >
-          <X className="h-5 w-5" />
-        </Button>
+          선택 해제
+        </button>
       </div>
 
-      {/* 또는 개별 선택 안내 */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-border" />
-        <span className="text-xs text-muted-foreground">또는 개별 선택</span>
-        <div className="flex-1 h-px bg-border" />
-      </div>
-
-      {/* 개별 합주실 선택 */}
+      {/* 합주실 목록 */}
       <div className="flex flex-wrap gap-2">
         {rooms.map((room) => {
           const isSelected = selectedRooms.includes(room);
@@ -74,14 +54,14 @@ export function RoomSelector({ region, selectedRooms, onRoomsChange }: RoomSelec
               key={room}
               onClick={() => toggleRoom(room)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border-2",
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 border",
                 isSelected
-                  ? "bg-primary/15 text-primary border-primary/40 shadow-sm"
-                  : "bg-card text-foreground border-border hover:border-primary/30 hover:bg-primary/5"
+                  ? "bg-primary/15 text-primary border-primary/40"
+                  : "bg-card text-foreground border-border hover:border-primary/30"
               )}
             >
               <div className={cn(
-                "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all",
+                "w-4 h-4 rounded border flex items-center justify-center transition-all",
                 isSelected 
                   ? "bg-primary border-primary" 
                   : "border-muted-foreground/40"
@@ -96,22 +76,9 @@ export function RoomSelector({ region, selectedRooms, onRoomsChange }: RoomSelec
 
       {/* 선택 현황 */}
       {selectedRooms.length > 0 && (
-        <div className="bg-secondary/50 rounded-xl p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-primary" />
-            <span className="text-sm">
-              <strong className="text-primary">{selectedRooms.length}개</strong> 합주실 선택됨
-            </span>
-          </div>
-          {!allSelected && (
-            <button
-              onClick={selectAll}
-              className="text-xs text-primary hover:underline"
-            >
-              전체 선택
-            </button>
-          )}
-        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="text-primary font-medium">{selectedRooms.length}개</span> 선택됨
+        </p>
       )}
       
       {rooms.length === 0 && (
