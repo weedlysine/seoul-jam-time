@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-export type ThemeKey = "orange" | "ocean" | "cafe" | "purple" | "mint";
+export type ThemeKey = "orange" | "ocean" | "cafe" | "purple" | "mint" | "naver" | "rose" | "slate" | "sunset";
 
 interface Theme {
   key: ThemeKey;
@@ -25,6 +25,7 @@ interface Theme {
     mutedForeground: string;
     border: string;
     accent: string;
+    available: string;
   };
 }
 
@@ -44,6 +45,25 @@ const themes: Theme[] = [
       mutedForeground: "0 0% 60%",
       border: "0 0% 20%",
       accent: "32 95% 55%",
+      available: "142 76% 45%",
+    },
+  },
+  {
+    key: "naver",
+    name: "Naver",
+    emoji: "🟢",
+    colors: {
+      background: "0 0% 98%",
+      foreground: "0 0% 15%",
+      card: "0 0% 100%",
+      primary: "145 63% 42%",
+      primaryForeground: "0 0% 100%",
+      secondary: "0 0% 96%",
+      muted: "0 0% 93%",
+      mutedForeground: "0 0% 45%",
+      border: "0 0% 88%",
+      accent: "145 63% 42%",
+      available: "145 63% 42%",
     },
   },
   {
@@ -61,23 +81,61 @@ const themes: Theme[] = [
       mutedForeground: "210 10% 55%",
       border: "210 15% 22%",
       accent: "175 70% 45%",
+      available: "175 70% 45%",
     },
   },
   {
-    key: "cafe",
-    name: "Warm Cafe",
-    emoji: "☕",
+    key: "rose",
+    name: "Rose",
+    emoji: "🌸",
     colors: {
-      background: "30 15% 94%",
-      foreground: "30 10% 15%",
-      card: "30 20% 98%",
-      primary: "25 60% 45%",
-      primaryForeground: "30 15% 98%",
-      secondary: "30 15% 88%",
-      muted: "30 10% 85%",
-      mutedForeground: "30 10% 45%",
-      border: "30 15% 82%",
-      accent: "25 60% 45%",
+      background: "0 0% 98%",
+      foreground: "340 10% 15%",
+      card: "0 0% 100%",
+      primary: "340 75% 55%",
+      primaryForeground: "0 0% 100%",
+      secondary: "340 20% 95%",
+      muted: "340 15% 92%",
+      mutedForeground: "340 10% 45%",
+      border: "340 15% 88%",
+      accent: "340 75% 55%",
+      available: "160 60% 45%",
+    },
+  },
+  {
+    key: "slate",
+    name: "Slate",
+    emoji: "🔷",
+    colors: {
+      background: "220 15% 12%",
+      foreground: "220 10% 95%",
+      card: "220 15% 15%",
+      primary: "215 80% 55%",
+      primaryForeground: "0 0% 100%",
+      secondary: "220 12% 20%",
+      muted: "220 10% 25%",
+      mutedForeground: "220 8% 55%",
+      border: "220 10% 28%",
+      accent: "215 80% 55%",
+      available: "142 76% 45%",
+    },
+  },
+  {
+    key: "sunset",
+    name: "Sunset",
+    emoji: "🌅",
+    colors: {
+      background: "15 25% 6%",
+      foreground: "30 15% 95%",
+      card: "15 20% 10%",
+      primary: "15 85% 60%",
+      primaryForeground: "15 25% 5%",
+      secondary: "15 15% 15%",
+      muted: "15 12% 20%",
+      mutedForeground: "15 10% 55%",
+      border: "15 12% 22%",
+      accent: "15 85% 60%",
+      available: "45 90% 50%",
     },
   },
   {
@@ -95,6 +153,25 @@ const themes: Theme[] = [
       mutedForeground: "260 10% 55%",
       border: "260 12% 22%",
       accent: "270 60% 60%",
+      available: "142 76% 45%",
+    },
+  },
+  {
+    key: "cafe",
+    name: "Warm Cafe",
+    emoji: "☕",
+    colors: {
+      background: "30 15% 94%",
+      foreground: "30 10% 15%",
+      card: "30 20% 98%",
+      primary: "25 60% 45%",
+      primaryForeground: "30 15% 98%",
+      secondary: "30 15% 88%",
+      muted: "30 10% 85%",
+      mutedForeground: "30 10% 45%",
+      border: "30 15% 82%",
+      accent: "25 60% 45%",
+      available: "142 76% 45%",
     },
   },
   {
@@ -112,6 +189,7 @@ const themes: Theme[] = [
       mutedForeground: "160 10% 45%",
       border: "160 12% 80%",
       accent: "160 55% 40%",
+      available: "160 55% 40%",
     },
   },
 ];
