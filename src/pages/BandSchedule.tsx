@@ -42,7 +42,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   CalendarDays,
   Plus,
@@ -65,6 +71,7 @@ export default function BandSchedule() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [showScheduleSheet, setShowScheduleSheet] = useState(false);
 
   // New schedule form
   const [newTitle, setNewTitle] = useState("");
@@ -76,7 +83,7 @@ export default function BandSchedule() {
 
   if (!user) {
     return (
-      <div className="container py-8">
+      <div className="container px-4 py-6 sm:py-8">
         <Card className="max-w-md mx-auto">
           <CardHeader className="text-center">
             <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -97,7 +104,7 @@ export default function BandSchedule() {
 
   if (bands.length === 0) {
     return (
-      <div className="container py-8">
+      <div className="container px-4 py-6 sm:py-8">
         <Card className="max-w-md mx-auto">
           <CardHeader className="text-center">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -186,22 +193,95 @@ export default function BandSchedule() {
 
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    // On mobile, show sheet with schedule details
+    if (window.innerWidth < 1024) {
+      setShowScheduleSheet(true);
+    }
+  };
+
+  const selectedDateSchedules = getSchedulesForDate(selectedDate);
+
+  // Schedule list component (used in both sidebar and sheet)
+  const ScheduleList = () => (
+    <>
+      {selectedDateSchedules.length === 0 ? (
+        <div className="text-center py-8">
+          <CalendarDays className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">
+            이 날에는 일정이 없습니다.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {selectedDateSchedules.map((schedule) => (
+            <Card key={schedule.id} className="bg-muted/50">
+              <CardContent className="p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate">
+                      {schedule.title}
+                    </h3>
+                    <div className="space-y-0.5 mt-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        <span>
+                          {schedule.startTime} - {schedule.endTime}
+                        </span>
+                      </div>
+                      {schedule.location && (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{schedule.location}</span>
+                        </div>
+                      )}
+                    </div>
+                    {schedule.memo && (
+                      <p className="mt-2 text-xs bg-background p-2 rounded">
+                        {schedule.memo}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mt-1.5">
+                      작성: {getMemberName(schedule.createdBy)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:text-destructive shrink-0"
+                    onClick={() =>
+                      handleDeleteSchedule(schedule.id, schedule.title)
+                    }
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
   return (
-    <div className="container py-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="container px-4 py-6 sm:py-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold mb-2">밴드 일정</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">밴드 일정</h1>
+          <p className="text-sm text-muted-foreground">
             밴드 멤버들과 합주 일정을 공유하세요
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Select
             value={currentBand?.id || ""}
             onValueChange={(id) => selectBand(id)}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="밴드 선택" />
             </SelectTrigger>
             <SelectContent>
@@ -216,12 +296,12 @@ export default function BandSchedule() {
           {currentBand && (
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   일정 추가
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto mx-4">
                 <DialogHeader>
                   <DialogTitle>새 일정 추가</DialogTitle>
                   <DialogDescription>
@@ -244,7 +324,7 @@ export default function BandSchedule() {
                       mode="single"
                       selected={newDate}
                       onSelect={setNewDate}
-                      className="rounded-md border"
+                      className="rounded-md border mx-auto"
                       locale={ko}
                     />
                   </div>
@@ -300,11 +380,11 @@ export default function BandSchedule() {
                     />
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setShowAddDialog(false)} className="w-full sm:w-auto">
                     취소
                   </Button>
-                  <Button onClick={handleAddSchedule}>추가</Button>
+                  <Button onClick={handleAddSchedule} className="w-full sm:w-auto">추가</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -322,10 +402,10 @@ export default function BandSchedule() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid lg:grid-cols-[1fr_350px] gap-6">
+        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
           {/* Monthly Calendar */}
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 px-3 sm:px-6">
               <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
@@ -334,7 +414,7 @@ export default function BandSchedule() {
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
-                <CardTitle className="text-xl">
+                <CardTitle className="text-lg sm:text-xl">
                   {format(currentMonth, "yyyy년 M월", { locale: ko })}
                 </CardTitle>
                 <Button
@@ -346,13 +426,13 @@ export default function BandSchedule() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-6">
               {/* Week day headers */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
                 {weekDays.map((day, idx) => (
                   <div
                     key={day}
-                    className={`text-center text-sm font-medium py-2 ${
+                    className={`text-center text-xs sm:text-sm font-medium py-1 sm:py-2 ${
                       idx === 0 ? "text-destructive" : idx === 6 ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
@@ -362,7 +442,7 @@ export default function BandSchedule() {
               </div>
 
               {/* Calendar grid */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
                 {calendarDays.map((day) => {
                   const daySchedules = getSchedulesForDate(day);
                   const isToday = isSameDay(day, new Date());
@@ -373,17 +453,17 @@ export default function BandSchedule() {
                   return (
                     <div
                       key={day.toISOString()}
-                      className={`min-h-[80px] p-1 border rounded-md cursor-pointer transition-all hover:bg-accent/50 ${
+                      className={`min-h-[48px] sm:min-h-[80px] p-0.5 sm:p-1 border rounded-md cursor-pointer transition-all hover:bg-accent/50 ${
                         isSelected ? "ring-2 ring-primary bg-accent" : ""
                       } ${!isCurrentMonth ? "opacity-40" : ""} ${
                         isToday ? "bg-primary/10" : ""
                       }`}
-                      onClick={() => setSelectedDate(day)}
+                      onClick={() => handleDateClick(day)}
                     >
                       <div
-                        className={`text-sm font-medium mb-1 ${
+                        className={`text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 ${
                           isToday
-                            ? "bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center"
+                            ? "bg-primary text-primary-foreground w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs"
                             : dayOfWeek === 0
                             ? "text-destructive"
                             : dayOfWeek === 6
@@ -393,7 +473,18 @@ export default function BandSchedule() {
                       >
                         {format(day, "d")}
                       </div>
-                      <div className="space-y-0.5">
+                      {/* Mobile: just show dot indicator */}
+                      <div className="sm:hidden">
+                        {daySchedules.length > 0 && (
+                          <div className="flex justify-center gap-0.5">
+                            {daySchedules.slice(0, 3).map((_, idx) => (
+                              <div key={idx} className="w-1 h-1 rounded-full bg-primary" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {/* Desktop: show schedule titles */}
+                      <div className="hidden sm:block space-y-0.5">
                         {daySchedules.slice(0, 2).map((schedule) => (
                           <div
                             key={schedule.id}
@@ -415,100 +506,43 @@ export default function BandSchedule() {
             </CardContent>
           </Card>
 
-          {/* Selected day schedules */}
-          <div className="space-y-4">
-            <Card>
+          {/* Desktop: Selected day schedules sidebar */}
+          <div className="hidden lg:block">
+            <Card className="sticky top-20">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">
                   {format(selectedDate, "M월 d일 (EEEE)", { locale: ko })}
                 </CardTitle>
                 <CardDescription>
-                  {getSchedulesForDate(selectedDate).length}개의 일정
+                  {selectedDateSchedules.length}개의 일정
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {getSchedulesForDate(selectedDate).length === 0 ? (
-                  <div className="text-center py-8">
-                    <CalendarDays className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      이 날에는 일정이 없습니다.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {getSchedulesForDate(selectedDate).map((schedule) => (
-                      <Card key={schedule.id} className="bg-muted/50">
-                        <CardContent className="p-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-medium text-sm truncate">
-                                {schedule.title}
-                              </h3>
-                              <div className="space-y-0.5 mt-1.5 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1.5">
-                                  <Clock className="h-3 w-3" />
-                                  <span>
-                                    {schedule.startTime} - {schedule.endTime}
-                                  </span>
-                                </div>
-                                {schedule.location && (
-                                  <div className="flex items-center gap-1.5">
-                                    <MapPin className="h-3 w-3" />
-                                    <span className="truncate">{schedule.location}</span>
-                                  </div>
-                                )}
-                              </div>
-                              {schedule.memo && (
-                                <p className="mt-2 text-xs bg-background p-2 rounded">
-                                  {schedule.memo}
-                                </p>
-                              )}
-                              <p className="text-[10px] text-muted-foreground mt-1.5">
-                                작성: {getMemberName(schedule.createdBy)}
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive shrink-0"
-                              onClick={() =>
-                                handleDeleteSchedule(schedule.id, schedule.title)
-                              }
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Band members quick view */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  밴드 멤버 ({members.length}명)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {members.map((member) => (
-                    <Badge key={member.id} variant="secondary" className="text-xs">
-                      {member.nickname}
-                    </Badge>
-                  ))}
-                </div>
+                <ScheduleList />
               </CardContent>
             </Card>
           </div>
         </div>
       )}
 
-      <div className="mt-8 text-center">
+      {/* Mobile: Schedule sheet */}
+      <Sheet open={showScheduleSheet} onOpenChange={setShowScheduleSheet}>
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
+          <SheetHeader className="text-left">
+            <SheetTitle>
+              {format(selectedDate, "M월 d일 (EEEE)", { locale: ko })}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedDateSchedules.length}개의 일정
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-4 overflow-y-auto max-h-[calc(70vh-100px)]">
+            <ScheduleList />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <div className="mt-6 sm:mt-8 text-center">
         <p className="text-xs text-muted-foreground">
           ⚠️ 데모 버전: 데이터는 브라우저에만 저장됩니다
         </p>
