@@ -71,13 +71,13 @@
      >
        <div className="min-w-fit">
          {/* Header - Dates */}
-         <div className="flex">
+         <div className="flex gap-1">
            <div className="w-14 shrink-0" /> {/* Time column spacer */}
            {dates.map((date) => (
              <div
                key={date.toISOString()}
-               className={cn(
-                 "flex-1 min-w-[60px] text-center py-2 text-sm font-medium",
+             className={cn(
+               "flex-1 min-w-[60px] text-center py-2 text-sm font-medium rounded-t-lg bg-secondary/50",
                  isSameDay(date, new Date()) && "text-primary"
                )}
              >
@@ -95,9 +95,9 @@
          </div>
  
          {/* Time Grid */}
-         <div className="flex">
+         <div className="flex gap-1">
            {/* Time Labels */}
-           <div className="w-14 shrink-0">
+           <div className="w-14 shrink-0 space-y-0.5">
              {hours.map((hour) => (
                <div
                  key={hour}
@@ -110,7 +110,7 @@
  
            {/* Cells */}
            {dates.map((date) => (
-             <div key={date.toISOString()} className="flex-1 min-w-[60px]">
+             <div key={date.toISOString()} className="flex-1 min-w-[60px] space-y-0.5">
                {hours.map((hour) => {
                  const key = getSlotKey(date, hour);
                  const isAvailable = availability[key];
@@ -121,7 +121,7 @@
                    <div
                      key={key}
                      className={cn(
-                       "h-8 border border-border/50 transition-colors cursor-pointer",
+                       "h-8 rounded-sm transition-colors cursor-pointer",
                        showHeatmap
                          ? getHeatmapColor(participantCount)
                          : isAvailable
