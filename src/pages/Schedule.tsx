@@ -1,5 +1,5 @@
-import { Calendar } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ import { Calendar } from "lucide-react";
+ import { ScheduleSession } from "@/components/schedule/ScheduleSession";
 
 const Schedule = () => {
   return (
@@ -14,17 +14,7 @@ const Schedule = () => {
         </div>
       </div>
 
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle className="text-lg">WhenToMeet 스타일 일정 조율</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            밴드 멤버들의 가능한 시간을 한눈에 확인하고 최적의 합주 시간을 찾을 수 있는 기능이 곧 추가됩니다. 
-            링크를 공유하여 멤버들의 스케줄을 수집하세요.
-          </p>
-        </CardContent>
-      </Card>
+       <ScheduleSession />
     </div>
   );
 };
