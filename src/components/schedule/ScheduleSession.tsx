@@ -375,6 +375,7 @@
                  participantNames={participantNames}
                  maxParticipants={session.participants.length}
                  readOnly
+                 allParticipants={session.participants}
                />
              </div>
  

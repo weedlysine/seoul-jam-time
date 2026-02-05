@@ -153,8 +153,12 @@
                    />
                  );
  
-                 // Show tooltip only in view mode with participants
-                 if (showHeatmap && namesAtSlot.length > 0) {
+                 // Get unavailable participants
+                 const allNames = allParticipants?.map(p => p.name) || [];
+                 const unavailableNames = allNames.filter(name => !namesAtSlot.includes(name));
+ 
+                 // Show tooltip in view mode when there are participants
+                 if (showHeatmap && maxParticipants > 0) {
                    return (
                      <Tooltip key={key} delayDuration={100}>
                        <TooltipTrigger asChild>
@@ -162,17 +166,23 @@
                        </TooltipTrigger>
                        <TooltipContent 
                          side="top" 
-                         className="max-w-[200px] text-center"
+                         className="max-w-[220px]"
                        >
                          <p className="font-medium text-xs mb-1">
                            {hour}:00 - {hour + 1}:00
                          </p>
-                         <p className="text-xs">
-                           {namesAtSlot.join(", ")}
-                         </p>
-                         <p className="text-xs text-muted-foreground mt-1">
-                           {namesAtSlot.length}명 가능
-                         </p>
+                         {namesAtSlot.length > 0 && (
+                           <div className="text-xs mb-1">
+                             <span className="text-primary">✓ 가능:</span>{" "}
+                             <span>{namesAtSlot.join(", ")}</span>
+                           </div>
+                         )}
+                         {unavailableNames.length > 0 && (
+                           <div className="text-xs text-muted-foreground">
+                             <span>✗ 불가:</span>{" "}
+                             <span>{unavailableNames.join(", ")}</span>
+                           </div>
+                         )}
                        </TooltipContent>
                      </Tooltip>
                    );
