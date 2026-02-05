@@ -1,7 +1,7 @@
  import { useState } from "react";
  import { format, addDays } from "date-fns";
  import { ko } from "date-fns/locale";
- import { Calendar, Users, Copy, Check, Plus } from "lucide-react";
+ import { Calendar, Users, Copy, Check, Plus, Eye } from "lucide-react";
  import { Button } from "@/components/ui/button";
  import { Input } from "@/components/ui/input";
  import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@
  import { ScheduleGrid } from "./ScheduleGrid";
  import { cn } from "@/lib/utils";
  import { toast } from "sonner";
+ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
  
  interface Participant {
    name: string;
@@ -43,6 +44,9 @@
    // Participate state
    const [participantName, setParticipantName] = useState("");
    const [myAvailability, setMyAvailability] = useState<Record<string, boolean>>({});
+ 
+   // View state
+   const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
  
    const handleCreateSession = () => {
      if (!title.trim()) {
@@ -94,18 +98,21 @@
      }));
    };
  
-   const getParticipantAvailability = (): Record<string, number> => {
-     if (!session) return {};
+   const getParticipantAvailability = (): { counts: Record<string, number>; names: Record<string, string[]> } => {
+     if (!session) return { counts: {}, names: {} };
      
-     const result: Record<string, number> = {};
+     const counts: Record<string, number> = {};
+     const names: Record<string, string[]> = {};
      session.participants.forEach((p) => {
        Object.entries(p.availability).forEach(([key, value]) => {
          if (value) {
-           result[key] = (result[key] || 0) + 1;
+           counts[key] = (counts[key] || 0) + 1;
+           if (!names[key]) names[key] = [];
+           names[key].push(p.name);
          }
        });
      });
-     return result;
+     return { counts, names };
    };
  
    const copyLink = () => {
@@ -294,7 +301,7 @@
    }
  
    if (step === "view" && session) {
-     const participantAvailability = getParticipantAvailability();
+     const { counts: participantAvailability, names: participantNames } = getParticipantAvailability();
      
      return (
        <div className="space-y-6">
@@ -317,21 +324,46 @@
            </CardHeader>
            <CardContent className="space-y-4">
              {/* Participants */}
-             <div className="flex items-center gap-2 flex-wrap">
-               <Users className="h-4 w-4 text-muted-foreground" />
-               <span className="text-sm text-muted-foreground">참여자:</span>
-               {session.participants.map((p, i) => (
-                 <span
-                   key={i}
-                   className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-sm"
+             <div className="space-y-2">
+               <div className="flex items-center gap-2">
+                 <Users className="h-4 w-4 text-muted-foreground" />
+                 <span className="text-sm text-muted-foreground">참여자 ({session.participants.length}명):</span>
+               </div>
+               <div className="flex items-center gap-2 flex-wrap">
+                 <button
+                   onClick={() => setSelectedParticipant(null)}
+                   className={cn(
+                     "px-3 py-1 rounded-full text-sm transition-colors",
+                     selectedParticipant === null
+                       ? "bg-primary text-primary-foreground"
+                       : "bg-secondary hover:bg-muted text-foreground"
+                   )}
                  >
-                   {p.name}
-                 </span>
-               ))}
+                   전체 보기
+                 </button>
+                 {session.participants.map((p, i) => (
+                   <button
+                     key={i}
+                     onClick={() => setSelectedParticipant(selectedParticipant === p.name ? null : p.name)}
+                     className={cn(
+                       "px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1",
+                       selectedParticipant === p.name
+                         ? "bg-primary text-primary-foreground"
+                         : "bg-secondary hover:bg-muted text-foreground"
+                     )}
+                   >
+                     {selectedParticipant === p.name && <Eye className="h-3 w-3" />}
+                     {p.name}
+                   </button>
+                 ))}
+               </div>
              </div>
  
              {/* Heatmap Legend */}
-             <div className="flex items-center gap-3 text-sm">
+             <div className={cn(
+               "flex items-center gap-3 text-sm transition-opacity",
+               selectedParticipant && "opacity-50"
+             )}>
                <span className="text-muted-foreground">가능 인원:</span>
                <div className="flex items-center gap-1">
                  <div className="w-4 h-4 rounded bg-muted border" />
@@ -353,6 +385,11 @@
  
              {/* Heatmap Grid */}
              <div className="border rounded-lg p-3 bg-secondary/30">
+               {selectedParticipant && (
+                 <p className="text-sm text-muted-foreground mb-2">
+                   👤 <span className="font-medium text-foreground">{selectedParticipant}</span>님의 가능 시간
+                 </p>
+               )}
                <ScheduleGrid
                  startDate={session.startDate}
                  days={session.days}
@@ -361,8 +398,11 @@
                  availability={{}}
                  onAvailabilityChange={() => {}}
                  participantAvailability={participantAvailability}
+                 participantNames={participantNames}
                  maxParticipants={session.participants.length}
                  readOnly
+                 highlightedParticipant={selectedParticipant}
+                 allParticipants={session.participants}
                />
              </div>
  
