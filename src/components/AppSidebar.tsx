@@ -37,7 +37,7 @@ const bandMenuItems = [
 ];
 
 // Helper component to render band menu only when logged in
-function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => boolean; collapsed: boolean }) {
+function BandMenuSection({ isActive, collapsed, onNavClick }: { isActive: (path: string) => boolean; collapsed: boolean; onNavClick: () => void }) {
   const { user } = useAuth();
   
   if (!user) return null;
@@ -50,7 +50,7 @@ function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => 
           {bandMenuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                <NavLink to={item.url}>
+                <NavLink to={item.url} onClick={onNavClick}>
                   <item.icon className="h-4 w-4" />
                   <span>{item.title}</span>
                 </NavLink>
@@ -63,18 +63,23 @@ function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => 
   );
 }
 
- export function AppSidebar() {
-   const { state } = useSidebar();
-   const collapsed = state === "collapsed";
-   const location = useLocation();
-   const navigate = useNavigate();
-   const currentPath = location.pathname;
-   const { user, logout } = useAuth();
- 
-   const handleLogout = () => {
-     logout();
-     navigate("/");
-   };
+export function AppSidebar() {
+  const { state, setOpenMobile, isMobile } = useSidebar();
+  const collapsed = state === "collapsed";
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname;
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    if (isMobile) setOpenMobile(false);
+  };
+
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   const isActive = (path: string) => currentPath === path;
 
@@ -102,7 +107,7 @@ function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => 
               {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <NavLink to={item.url}>
+                    <NavLink to={item.url} onClick={handleNavClick}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </NavLink>
@@ -113,25 +118,25 @@ function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => 
           </SidebarGroupContent>
         </SidebarGroup>
 
-         <SidebarGroup>
-           <SidebarGroupLabel>커뮤니티</SidebarGroupLabel>
-           <SidebarGroupContent>
-             <SidebarMenu>
-               {communityMenuItems.map((item) => (
-                 <SidebarMenuItem key={item.title}>
-                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                     <NavLink to={item.url}>
-                       <item.icon className="h-4 w-4" />
-                       <span>{item.title}</span>
-                     </NavLink>
-                   </SidebarMenuButton>
-                 </SidebarMenuItem>
-               ))}
-             </SidebarMenu>
-           </SidebarGroupContent>
-         </SidebarGroup>
- 
-        <BandMenuSection isActive={isActive} collapsed={collapsed} />
+        <SidebarGroup>
+          <SidebarGroupLabel>커뮤니티</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {communityMenuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                    <NavLink to={item.url} onClick={handleNavClick}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <BandMenuSection isActive={isActive} collapsed={collapsed} onNavClick={handleNavClick} />
       </SidebarContent>
 
        <SidebarFooter className="border-t border-sidebar-border">
