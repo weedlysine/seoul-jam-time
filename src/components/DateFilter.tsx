@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, type PointerEvent, type MouseEvent } from "react";
 
 interface DateFilterProps {
   selectedDate: Date;
@@ -23,9 +23,13 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   
   // 드래그 스크롤 상태
   const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeftPos, setScrollLeftPos] = useState(0);
+
+  // NOTE: 클릭/드래그 구분은 state가 아닌 ref로 처리해야
+  // (pointerdown → click 사이에 re-render가 없어도) 값이 즉시 반영됩니다.
+  const pointerDownRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
   const dragThreshold = 5; // 드래그로 인식할 최소 이동 거리
 
   const scrollLeft = () => {
@@ -36,44 +40,59 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
     scrollRef.current?.scrollBy({ left: 200, behavior: "smooth" });
   };
 
-  // 드래그 시작
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handlePointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
     if (!scrollRef.current) return;
+    pointerDownRef.current = true;
+    hasDraggedRef.current = false; // 새 인터랙션 시작 시 즉시 리셋
     setIsDragging(true);
-    setHasDragged(false); // 새 인터랙션 시작 시 리셋
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeftPos(scrollRef.current.scrollLeft);
-  }, []);
 
-  // 드래그 중
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = x - startX;
-    
-    // 임계값을 넘어야 드래그로 인식
-    if (Math.abs(walk) > dragThreshold) {
-      setHasDragged(true);
-      e.preventDefault();
-      scrollRef.current.scrollLeft = scrollLeftPos - walk * 1.5;
+    startXRef.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+
+    // pointer capture (모바일/데스크톱 모두 안정적으로 move 이벤트 받기)
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
     }
-  }, [isDragging, startX, scrollLeftPos]);
-
-  // 드래그 종료
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
+  const handlePointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    if (!pointerDownRef.current || !scrollRef.current) return;
+
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const dx = x - startXRef.current;
+
+    // 임계값을 넘어야 드래그로 인식
+    if (Math.abs(dx) > dragThreshold) {
+      hasDraggedRef.current = true;
+      e.preventDefault();
+      scrollRef.current.scrollLeft = scrollLeftRef.current - dx * 1.5;
+    }
+  }, []);
+
+  const handlePointerEnd = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    pointerDownRef.current = false;
     setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
   }, []);
 
   // 날짜 클릭 핸들러 - 드래그가 아닐 때만 날짜 변경
-  const handleDateClick = useCallback((date: Date) => {
-    if (!hasDragged) {
+  const handleDateClick = useCallback(
+    (e: MouseEvent<HTMLButtonElement>, date: Date) => {
+      if (hasDraggedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       onDateChange(date);
-    }
-  }, [hasDragged, onDateChange]);
+    },
+    [onDateChange],
+  );
 
   return (
     <div className="space-y-3">
@@ -126,13 +145,14 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
       <div 
         ref={scrollRef}
         className={cn(
-          "flex gap-2 overflow-x-auto pb-2 scrollbar-hide",
+          "flex gap-2 overflow-x-auto pb-2 scrollbar-hide touch-pan-x",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onPointerLeave={handlePointerEnd}
       >
         {quickDates.map((date, index) => {
           const isToday = index === 0;
@@ -141,7 +161,7 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
           return (
             <button
               key={date.toISOString()}
-              onClick={() => handleDateClick(date)}
+              onClick={(e) => handleDateClick(e, date)}
               className={cn(
                 "flex flex-col items-center min-w-[48px] px-2 py-2 rounded-xl transition-all duration-200 shrink-0",
                 isSameDay(date, selectedDate)
