@@ -1,9 +1,9 @@
- import { Music, Search, Bell, Building2, Calendar, Users, LogIn, LogOut, Guitar } from "lucide-react";
- import { NavLink } from "@/components/NavLink";
- import { useLocation, useNavigate } from "react-router-dom";
- import { useAuth } from "@/contexts/AuthContext";
- import { Avatar, AvatarFallback } from "@/components/ui/avatar";
- import { Button } from "@/components/ui/button";
+import { Music, Search, Bell, Building2, Calendar, Users, LogIn, LogOut, Guitar } from "lucide-react";
+import { NavLink } from "@/components/NavLink";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 
 import {
@@ -26,15 +26,42 @@ const mainMenuItems = [
   { title: "합주실 정보", url: "/studios", icon: Building2 },
 ];
 
- const communityMenuItems = [
-   { title: "일정 조율", url: "/schedule", icon: Calendar },
-   { title: "커뮤니티", url: "/community", icon: Users },
- ];
- 
- const bandMenuItems = [
-   { title: "내 밴드", url: "/bands", icon: Guitar },
-   { title: "밴드 일정", url: "/band-schedule", icon: Calendar },
- ];
+const communityMenuItems = [
+  { title: "일정 조율", url: "/schedule", icon: Calendar },
+  { title: "커뮤니티", url: "/community", icon: Users },
+];
+
+const bandMenuItems = [
+  { title: "내 밴드", url: "/bands", icon: Guitar },
+  { title: "밴드 일정", url: "/band-schedule", icon: Calendar },
+];
+
+// Helper component to render band menu only when logged in
+function BandMenuSection({ isActive, collapsed }: { isActive: (path: string) => boolean; collapsed: boolean }) {
+  const { user } = useAuth();
+  
+  if (!user) return null;
+  
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>밴드</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {bandMenuItems.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                <NavLink to={item.url}>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
 
  export function AppSidebar() {
    const { state } = useSidebar();
@@ -104,23 +131,7 @@ const mainMenuItems = [
            </SidebarGroupContent>
          </SidebarGroup>
  
-         <SidebarGroup>
-           <SidebarGroupLabel>밴드</SidebarGroupLabel>
-           <SidebarGroupContent>
-             <SidebarMenu>
-               {bandMenuItems.map((item) => (
-                 <SidebarMenuItem key={item.title}>
-                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                     <NavLink to={item.url}>
-                       <item.icon className="h-4 w-4" />
-                       <span>{item.title}</span>
-                     </NavLink>
-                   </SidebarMenuButton>
-                 </SidebarMenuItem>
-               ))}
-             </SidebarMenu>
-           </SidebarGroupContent>
-         </SidebarGroup>
+        <BandMenuSection isActive={isActive} collapsed={collapsed} />
       </SidebarContent>
 
        <SidebarFooter className="border-t border-sidebar-border">
