@@ -295,7 +295,7 @@ const Index = () => {
       </div>
 
       {/* 푸터 */}
-      <footer className="border-t border-border mt-8 sm:mt-12 py-6 sm:py-8">
+      <footer className="border-t border-border mt-16 sm:mt-24 py-6 sm:py-8">
         <div className="container px-4 text-center text-xs sm:text-sm text-muted-foreground">
           <p>데이터는 네이버 예약에서 실시간으로 수집됩니다</p>
           <p className="mt-1">© 2024 밴드룸. All rights reserved.</p>
