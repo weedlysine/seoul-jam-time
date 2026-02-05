@@ -23,8 +23,10 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   
   // 드래그 스크롤 상태
   const [isDragging, setIsDragging] = useState(false);
+  const [hasDragged, setHasDragged] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftPos, setScrollLeftPos] = useState(0);
+  const dragThreshold = 5; // 드래그로 인식할 최소 이동 거리
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -200, behavior: "smooth" });
@@ -38,6 +40,7 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
+    setHasDragged(false); // 새 인터랙션 시작 시 리셋
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeftPos(scrollRef.current.scrollLeft);
   }, []);
@@ -45,10 +48,15 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   // 드래그 중
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // 스크롤 속도 조절
-    scrollRef.current.scrollLeft = scrollLeftPos - walk;
+    const walk = x - startX;
+    
+    // 임계값을 넘어야 드래그로 인식
+    if (Math.abs(walk) > dragThreshold) {
+      setHasDragged(true);
+      e.preventDefault();
+      scrollRef.current.scrollLeft = scrollLeftPos - walk * 1.5;
+    }
   }, [isDragging, startX, scrollLeftPos]);
 
   // 드래그 종료
@@ -59,6 +67,13 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const handleMouseLeave = useCallback(() => {
     setIsDragging(false);
   }, []);
+
+  // 날짜 클릭 핸들러 - 드래그가 아닐 때만 날짜 변경
+  const handleDateClick = useCallback((date: Date) => {
+    if (!hasDragged) {
+      onDateChange(date);
+    }
+  }, [hasDragged, onDateChange]);
 
   return (
     <div className="space-y-3">
@@ -126,7 +141,7 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
           return (
             <button
               key={date.toISOString()}
-              onClick={() => onDateChange(date)}
+              onClick={() => handleDateClick(date)}
               className={cn(
                 "flex flex-col items-center min-w-[48px] px-2 py-2 rounded-xl transition-all duration-200 shrink-0",
                 isSameDay(date, selectedDate)
