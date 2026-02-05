@@ -324,46 +324,22 @@
            </CardHeader>
            <CardContent className="space-y-4">
              {/* Participants */}
-             <div className="space-y-2">
-               <div className="flex items-center gap-2">
-                 <Users className="h-4 w-4 text-muted-foreground" />
-                 <span className="text-sm text-muted-foreground">참여자 ({session.participants.length}명):</span>
-               </div>
-               <div className="flex items-center gap-2 flex-wrap">
-                 <button
-                   onClick={() => setSelectedParticipant(null)}
-                   className={cn(
-                     "px-3 py-1 rounded-full text-sm transition-colors",
-                     selectedParticipant === null
-                       ? "bg-primary text-primary-foreground"
-                       : "bg-secondary hover:bg-muted text-foreground"
-                   )}
+             {/* Participants */}
+             <div className="flex items-center gap-2 flex-wrap">
+               <Users className="h-4 w-4 text-muted-foreground" />
+               <span className="text-sm text-muted-foreground">참여자:</span>
+               {session.participants.map((p, i) => (
+                 <span
+                   key={i}
+                   className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-sm"
                  >
-                   전체 보기
-                 </button>
-                 {session.participants.map((p, i) => (
-                   <button
-                     key={i}
-                     onClick={() => setSelectedParticipant(selectedParticipant === p.name ? null : p.name)}
-                     className={cn(
-                       "px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1",
-                       selectedParticipant === p.name
-                         ? "bg-primary text-primary-foreground"
-                         : "bg-secondary hover:bg-muted text-foreground"
-                     )}
-                   >
-                     {selectedParticipant === p.name && <Eye className="h-3 w-3" />}
-                     {p.name}
-                   </button>
-                 ))}
-               </div>
+                   {p.name}
+                 </span>
+               ))}
              </div>
  
              {/* Heatmap Legend */}
-             <div className={cn(
-               "flex items-center gap-3 text-sm transition-opacity",
-               selectedParticipant && "opacity-50"
-             )}>
+             <div className="flex items-center gap-3 text-sm">
                <span className="text-muted-foreground">가능 인원:</span>
                <div className="flex items-center gap-1">
                  <div className="w-4 h-4 rounded bg-muted border" />
@@ -385,11 +361,9 @@
  
              {/* Heatmap Grid */}
              <div className="border rounded-lg p-3 bg-secondary/30">
-               {selectedParticipant && (
-                 <p className="text-sm text-muted-foreground mb-2">
-                   👤 <span className="font-medium text-foreground">{selectedParticipant}</span>님의 가능 시간
-                 </p>
-               )}
+               <p className="text-xs text-muted-foreground mb-2">
+                 💡 각 시간 칸에 마우스를 올리면 가능한 멤버를 확인할 수 있어요
+               </p>
                <ScheduleGrid
                  startDate={session.startDate}
                  days={session.days}
@@ -401,8 +375,6 @@
                  participantNames={participantNames}
                  maxParticipants={session.participants.length}
                  readOnly
-                 highlightedParticipant={selectedParticipant}
-                 allParticipants={session.participants}
                />
              </div>
  
