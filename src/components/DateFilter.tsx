@@ -28,6 +28,7 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   // (pointerdown → click 사이에 re-render가 없어도) 값이 즉시 반영됩니다.
   const pointerDownRef = useRef(false);
   const hasDraggedRef = useRef(false);
+  const isCapturedRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
   const dragThreshold = 5; // 드래그로 인식할 최소 이동 거리
@@ -44,17 +45,15 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
     if (!scrollRef.current) return;
     pointerDownRef.current = true;
     hasDraggedRef.current = false; // 새 인터랙션 시작 시 즉시 리셋
-    setIsDragging(true);
+    isCapturedRef.current = false;
+    setIsDragging(false);
 
     startXRef.current = e.pageX - scrollRef.current.offsetLeft;
     scrollLeftRef.current = scrollRef.current.scrollLeft;
 
-    // pointer capture (모바일/데스크톱 모두 안정적으로 move 이벤트 받기)
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
+    // IMPORTANT: 여기서 바로 pointer capture를 잡아버리면
+    // click 이벤트 타겟이 컨테이너로 가면서 버튼 onClick이 안 탈 수 있어
+    // '드래그로 판정된 순간'에만 capture를 잡습니다.
   }, []);
 
   const handlePointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
@@ -65,6 +64,16 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
 
     // 임계값을 넘어야 드래그로 인식
     if (Math.abs(dx) > dragThreshold) {
+      if (!isCapturedRef.current) {
+        isCapturedRef.current = true;
+        setIsDragging(true);
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          // ignore
+        }
+      }
+
       hasDraggedRef.current = true;
       e.preventDefault();
       scrollRef.current.scrollLeft = scrollLeftRef.current - dx * 1.5;
@@ -74,10 +83,13 @@ export function DateFilter({ selectedDate, onDateChange }: DateFilterProps) {
   const handlePointerEnd = useCallback((e: PointerEvent<HTMLDivElement>) => {
     pointerDownRef.current = false;
     setIsDragging(false);
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
+    if (isCapturedRef.current) {
+      isCapturedRef.current = false;
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
