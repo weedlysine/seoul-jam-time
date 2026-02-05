@@ -100,8 +100,8 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1">
         {/* 스텝 인디케이터 - 모바일에서 스크롤 가능 */}
         <div className="flex items-center justify-start sm:justify-center gap-1 sm:gap-2 py-2 sm:py-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
           {steps.map((s, index) => (
@@ -295,7 +295,7 @@ const Index = () => {
       </div>
 
       {/* 푸터 */}
-      <footer className="border-t border-border mt-16 sm:mt-24 py-6 sm:py-8">
+      <footer className="border-t border-border py-6 sm:py-8 mt-auto">
         <div className="container px-4 text-center text-xs sm:text-sm text-muted-foreground">
           <p>데이터는 네이버 예약에서 실시간으로 수집됩니다</p>
           <p className="mt-1">© 2024 밴드룸. All rights reserved.</p>
