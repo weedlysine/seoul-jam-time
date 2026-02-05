@@ -1,4 +1,9 @@
  import { useState, useCallback } from "react";
+ import {
+   Tooltip,
+   TooltipContent,
+   TooltipTrigger,
+ } from "@/components/ui/tooltip";
  import { format, addDays, isSameDay } from "date-fns";
  import { ko } from "date-fns/locale";
  import { cn } from "@/lib/utils";
@@ -128,31 +133,52 @@
                    ? allParticipants.find(p => p.name === highlightedParticipant)?.availability[key]
                    : null;
  
-                 const tooltipText = showHeatmap && namesAtSlot.length > 0
-                   ? `${namesAtSlot.join(", ")} (${namesAtSlot.length}명)`
-                   : undefined;
- 
-                 return (
+                 const cellElement = (
                    <div
-                     key={key}
                      className={cn(
                        "h-8 rounded-sm transition-colors cursor-pointer",
-                         highlightedParticipant
-                           ? highlightedAvailable
-                             ? "bg-primary/80"
-                             : "bg-muted"
+                       highlightedParticipant
+                         ? highlightedAvailable
+                           ? "bg-primary/80"
+                           : "bg-muted"
                          : showHeatmap
-                         ? getHeatmapColor(participantCount)
-                         : isAvailable
-                           ? "bg-primary/80 hover:bg-primary"
-                           : "bg-muted hover:bg-muted/80",
+                           ? getHeatmapColor(participantCount)
+                           : isAvailable
+                             ? "bg-primary/80 hover:bg-primary"
+                             : "bg-muted hover:bg-muted/80",
                        readOnly && "cursor-default"
                      )}
                      onMouseDown={() => handleMouseDown(key)}
                      onMouseEnter={() => handleMouseEnter(key)}
-                       title={tooltipText}
                    />
                  );
+ 
+                 // Show tooltip only in view mode with participants
+                 if (showHeatmap && namesAtSlot.length > 0) {
+                   return (
+                     <Tooltip key={key} delayDuration={100}>
+                       <TooltipTrigger asChild>
+                         {cellElement}
+                       </TooltipTrigger>
+                       <TooltipContent 
+                         side="top" 
+                         className="max-w-[200px] text-center"
+                       >
+                         <p className="font-medium text-xs mb-1">
+                           {hour}:00 - {hour + 1}:00
+                         </p>
+                         <p className="text-xs">
+                           {namesAtSlot.join(", ")}
+                         </p>
+                         <p className="text-xs text-muted-foreground mt-1">
+                           {namesAtSlot.length}명 가능
+                         </p>
+                       </TooltipContent>
+                     </Tooltip>
+                   );
+                 }
+ 
+                 return <div key={key}>{cellElement}</div>;
                })}
              </div>
            ))}
