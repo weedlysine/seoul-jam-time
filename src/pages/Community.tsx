@@ -1,28 +1,12 @@
  import { useState } from "react";
- import { Users, PenSquare, MessageCircle, Heart, Clock } from "lucide-react";
+ import { Users, PenSquare, MessageCircle, Heart, Clock, ChevronRight } from "lucide-react";
  import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
  import { Button } from "@/components/ui/button";
- import { Input } from "@/components/ui/input";
- import { Textarea } from "@/components/ui/textarea";
- import { Label } from "@/components/ui/label";
- import {
-   Dialog,
-   DialogContent,
-   DialogHeader,
-   DialogTitle,
-   DialogTrigger,
- } from "@/components/ui/dialog";
- import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
  import { Badge } from "@/components/ui/badge";
  import { cn } from "@/lib/utils";
  import { format } from "date-fns";
  import { ko } from "date-fns/locale";
+ import { PostEditor } from "@/components/community/PostEditor";
  
  interface Post {
    id: string;
@@ -77,25 +61,15 @@ const Community = () => {
      },
    ]);
  
-   const [isDialogOpen, setIsDialogOpen] = useState(false);
-   const [newPost, setNewPost] = useState({
-     title: "",
-     content: "",
-     author: "",
-     category: "free",
-   });
+   const [isWriting, setIsWriting] = useState(false);
    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
  
-   const handleSubmit = () => {
-     if (!newPost.title.trim() || !newPost.content.trim() || !newPost.author.trim()) {
-       return;
-     }
- 
+   const handleSubmit = (newPost: { title: string; content: string; author: string; category: string }) => {
      const post: Post = {
        id: Math.random().toString(36).substring(7),
-       title: newPost.title.trim(),
-       content: newPost.content.trim(),
-       author: newPost.author.trim(),
+       title: newPost.title,
+       content: newPost.content,
+       author: newPost.author,
        category: newPost.category,
        createdAt: new Date(),
        likes: 0,
@@ -103,8 +77,7 @@ const Community = () => {
      };
  
      setPosts([post, ...posts]);
-     setNewPost({ title: "", content: "", author: "", category: "free" });
-     setIsDialogOpen(false);
+     setIsWriting(false);
    };
  
    const getCategoryInfo = (value: string) => {
@@ -127,6 +100,17 @@ const Community = () => {
      if (days < 7) return `${days}일 전`;
      return format(date, "M월 d일", { locale: ko });
    };
+ 
+   // Show post editor full screen
+   if (isWriting) {
+     return (
+       <PostEditor
+         onSubmit={handleSubmit}
+         onCancel={() => setIsWriting(false)}
+         categories={categories}
+       />
+     );
+   }
  
   return (
     <div className="container py-6 space-y-6">
@@ -170,75 +154,10 @@ const Community = () => {
            ))}
          </div>
  
-         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-           <DialogTrigger asChild>
-             <Button className="shrink-0">
-               <PenSquare className="h-4 w-4 mr-2" />
-               글쓰기
-             </Button>
-           </DialogTrigger>
-           <DialogContent className="sm:max-w-[500px]">
-             <DialogHeader>
-               <DialogTitle>새 글 작성</DialogTitle>
-             </DialogHeader>
-             <div className="space-y-4 pt-4">
-               <div className="grid grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                   <Label htmlFor="author">닉네임</Label>
-                   <Input
-                     id="author"
-                     placeholder="닉네임"
-                     value={newPost.author}
-                     onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
-                   />
-                 </div>
-                 <div className="space-y-2">
-                   <Label htmlFor="category">카테고리</Label>
-                   <Select
-                     value={newPost.category}
-                     onValueChange={(v) => setNewPost({ ...newPost, category: v })}
-                   >
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       {categories.map((cat) => (
-                         <SelectItem key={cat.value} value={cat.value}>
-                           {cat.label}
-                         </SelectItem>
-                       ))}
-                     </SelectContent>
-                   </Select>
-                 </div>
-               </div>
- 
-               <div className="space-y-2">
-                 <Label htmlFor="title">제목</Label>
-                 <Input
-                   id="title"
-                   placeholder="제목을 입력하세요"
-                   value={newPost.title}
-                   onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                 />
-               </div>
- 
-               <div className="space-y-2">
-                 <Label htmlFor="content">내용</Label>
-                 <Textarea
-                   id="content"
-                   placeholder="내용을 입력하세요"
-                   rows={5}
-                   value={newPost.content}
-                   onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                 />
-               </div>
- 
-               <Button onClick={handleSubmit} className="w-full">
-                 게시하기
-               </Button>
-             </div>
-           </DialogContent>
-         </Dialog>
+         <Button className="shrink-0" onClick={() => setIsWriting(true)}>
+           <PenSquare className="h-4 w-4 mr-2" />
+           글쓰기
+         </Button>
        </div>
  
        {/* Posts List */}
@@ -253,21 +172,21 @@ const Community = () => {
            filteredPosts.map((post) => {
              const categoryInfo = getCategoryInfo(post.category);
              return (
-               <Card key={post.id} className="hover:bg-muted/30 transition-colors cursor-pointer">
+               <Card key={post.id} className="hover:bg-muted/30 transition-colors cursor-pointer group">
                  <CardContent className="p-4">
-                   <div className="flex items-start gap-3">
+                   <div className="flex items-center gap-3">
                      <div className="flex-1 min-w-0">
-                       <div className="flex items-center gap-2 mb-1">
-                         <Badge variant="secondary" className={cn("text-xs", categoryInfo.color)}>
+                       <div className="flex items-center gap-2 mb-1.5">
+                         <Badge variant="secondary" className={cn("text-xs shrink-0", categoryInfo.color)}>
                            {categoryInfo.label}
                          </Badge>
-                         <span className="text-sm font-medium truncate">{post.title}</span>
+                         <h3 className="text-sm font-medium truncate">{post.title}</h3>
                        </div>
-                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                       <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
                          {post.content}
                        </p>
-                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                         <span>{post.author}</span>
+                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                         <span className="font-medium text-foreground/70">{post.author}</span>
                          <span className="flex items-center gap-1">
                            <Clock className="h-3 w-3" />
                            {formatTimeAgo(post.createdAt)}
@@ -281,7 +200,8 @@ const Community = () => {
                            {post.comments}
                          </span>
                        </div>
-                     </div>
+                       </div>
+                     <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                    </div>
                  </CardContent>
                </Card>
