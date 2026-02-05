@@ -11,9 +11,11 @@
    availability: Record<string, boolean>;
    onAvailabilityChange: (key: string, value: boolean) => void;
    participantAvailability?: Record<string, number>; // key -> count of participants available
+   participantNames?: Record<string, string[]>; // key -> list of participant names available
    maxParticipants?: number;
    readOnly?: boolean;
-   currentUserName?: string;
+   highlightedParticipant?: string | null; // show only this participant's availability
+   allParticipants?: { name: string; availability: Record<string, boolean> }[];
  }
  
  export function ScheduleGrid({
@@ -26,6 +28,9 @@
    participantAvailability,
    maxParticipants = 1,
    readOnly = false,
+   highlightedParticipant,
+   allParticipants,
+   participantNames,
  }: ScheduleGridProps) {
    const [isDragging, setIsDragging] = useState(false);
    const [dragValue, setDragValue] = useState(false);
@@ -116,13 +121,27 @@
                  const isAvailable = availability[key];
                  const participantCount = participantAvailability?.[key] || 0;
                  const showHeatmap = participantAvailability && maxParticipants > 0;
+                 const namesAtSlot = participantNames?.[key] || [];
+ 
+                 // If highlighting a specific participant
+                 const highlightedAvailable = highlightedParticipant && allParticipants
+                   ? allParticipants.find(p => p.name === highlightedParticipant)?.availability[key]
+                   : null;
+ 
+                 const tooltipText = showHeatmap && namesAtSlot.length > 0
+                   ? `${namesAtSlot.join(", ")} (${namesAtSlot.length}명)`
+                   : undefined;
  
                  return (
                    <div
                      key={key}
                      className={cn(
                        "h-8 rounded-sm transition-colors cursor-pointer",
-                       showHeatmap
+                         highlightedParticipant
+                           ? highlightedAvailable
+                             ? "bg-primary/80"
+                             : "bg-muted"
+                         : showHeatmap
                          ? getHeatmapColor(participantCount)
                          : isAvailable
                            ? "bg-primary/80 hover:bg-primary"
@@ -131,7 +150,7 @@
                      )}
                      onMouseDown={() => handleMouseDown(key)}
                      onMouseEnter={() => handleMouseEnter(key)}
-                     title={showHeatmap ? `${participantCount}명 가능` : undefined}
+                       title={tooltipText}
                    />
                  );
                })}
