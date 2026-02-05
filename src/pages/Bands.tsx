@@ -141,24 +141,24 @@
      });
    };
  
-   return (
-     <div className="container py-8">
-       <div className="mb-8">
-         <h1 className="text-2xl font-bold mb-2">내 밴드</h1>
-         <p className="text-muted-foreground">
-           밴드를 만들거나 초대 코드로 가입하세요
-         </p>
-       </div>
- 
-       {/* Action buttons */}
-       <div className="flex gap-3 mb-8">
-         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-           <DialogTrigger asChild>
-             <Button>
-               <Plus className="h-4 w-4 mr-2" />
-               밴드 만들기
-             </Button>
-           </DialogTrigger>
+  return (
+    <div className="container px-4 py-6 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">내 밴드</h1>
+        <p className="text-sm text-muted-foreground">
+          밴드를 만들거나 초대 코드로 가입하세요
+        </p>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-6 sm:mb-8">
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              밴드 만들기
+            </Button>
+          </DialogTrigger>
            <DialogContent>
              <DialogHeader>
                <DialogTitle>새 밴드 만들기</DialogTitle>
@@ -195,13 +195,13 @@
            </DialogContent>
          </Dialog>
  
-         <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
-           <DialogTrigger asChild>
-             <Button variant="outline">
-               <UserPlus className="h-4 w-4 mr-2" />
-               초대 코드로 가입
-             </Button>
-           </DialogTrigger>
+      <Dialog open={showJoinDialog} onOpenChange={setShowJoinDialog}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="w-full sm:w-auto">
+              <UserPlus className="h-4 w-4 mr-2" />
+              초대 코드로 가입
+            </Button>
+          </DialogTrigger>
            <DialogContent>
              <DialogHeader>
                <DialogTitle>밴드 가입하기</DialogTitle>
@@ -245,59 +245,59 @@
            </CardContent>
          </Card>
        ) : (
-         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-           {bands.map((band) => {
-             const isOwner = band.ownerId === user.id;
-             const isSelected = currentBand?.id === band.id;
- 
-             return (
-               <Card
-                 key={band.id}
-                 className={`cursor-pointer transition-all ${
-                   isSelected ? "ring-2 ring-primary" : "hover:shadow-md"
-                 }`}
-                 onClick={() => selectBand(band.id)}
-               >
-                 <CardHeader className="pb-3">
-                   <div className="flex items-start justify-between">
-                     <div>
-                       <CardTitle className="text-lg flex items-center gap-2">
-                         {band.name}
-                         {isOwner && (
-                           <Crown className="h-4 w-4 text-yellow-500" />
-                         )}
-                       </CardTitle>
-                       {band.description && (
-                         <CardDescription className="mt-1">
-                           {band.description}
-                         </CardDescription>
-                       )}
-                     </div>
-                     <Badge variant={isSelected ? "default" : "secondary"}>
-                       {isSelected ? "선택됨" : `${band.memberIds.length + 1}명`}
-                     </Badge>
-                   </div>
-                 </CardHeader>
-                 <CardContent>
-                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                       <span>초대 코드:</span>
-                       <code className="bg-muted px-2 py-0.5 rounded font-mono">
-                         {band.inviteCode}
-                       </code>
-                       <Button
-                         variant="ghost"
-                         size="icon"
-                         className="h-6 w-6"
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           copyInviteCode(band.inviteCode);
-                         }}
-                       >
-                         <Copy className="h-3 w-3" />
-                       </Button>
-                     </div>
-                     <div className="flex gap-1">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {bands.map((band) => {
+            const isOwner = band.ownerId === user.id;
+            const isSelected = currentBand?.id === band.id;
+
+            return (
+              <Card
+                key={band.id}
+                className={`cursor-pointer transition-all ${
+                  isSelected ? "ring-2 ring-primary" : "hover:shadow-md"
+                }`}
+                onClick={() => selectBand(band.id)}
+              >
+              <CardHeader className="pb-2 sm:pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                        <span className="truncate">{band.name}</span>
+                        {isOwner && (
+                          <Crown className="h-4 w-4 text-yellow-500 shrink-0" />
+                        )}
+                      </CardTitle>
+                      {band.description && (
+                        <CardDescription className="mt-1 text-xs sm:text-sm line-clamp-2">
+                          {band.description}
+                        </CardDescription>
+                      )}
+                    </div>
+                    <Badge variant={isSelected ? "default" : "secondary"} className="shrink-0 text-xs">
+                      {isSelected ? "선택됨" : `${band.memberIds.length + 1}명`}
+                    </Badge>
+                  </div>
+                </CardHeader>
+              <CardContent className="pt-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0">
+                      <span className="shrink-0">초대:</span>
+                      <code className="bg-muted px-1.5 sm:px-2 py-0.5 rounded font-mono text-xs">
+                        {band.inviteCode}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyInviteCode(band.inviteCode);
+                        }}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
                        {isOwner ? (
                          <Button
                            variant="ghost"
@@ -332,51 +332,51 @@
          </div>
        )}
  
-       {/* Selected band details */}
-       {currentBand && (
-         <div className="mt-8 space-y-6">
-           <div className="flex items-center justify-between">
-             <h2 className="text-xl font-semibold">
-               {currentBand.name} - 멤버 ({members.length}명)
-             </h2>
-             <Button onClick={() => navigate("/band-schedule")}>
-               <Calendar className="h-4 w-4 mr-2" />
-               일정 관리
-             </Button>
-           </div>
+      {/* Selected band details */}
+      {currentBand && (
+        <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-lg sm:text-xl font-semibold">
+              {currentBand.name} - 멤버 ({members.length}명)
+            </h2>
+            <Button onClick={() => navigate("/band-schedule")} className="w-full sm:w-auto">
+              <Calendar className="h-4 w-4 mr-2" />
+              일정 관리
+            </Button>
+          </div>
  
-           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-             {members.map((member) => (
-               <Card key={member.id} className="p-4">
-                 <div className="flex items-center gap-3">
-                   <Avatar>
-                     <AvatarFallback className="bg-primary/10 text-primary">
-                       {member.nickname.slice(0, 2)}
-                     </AvatarFallback>
-                   </Avatar>
-                   <div className="flex-1 min-w-0">
-                     <p className="font-medium truncate flex items-center gap-2">
-                       {member.nickname}
-                       {member.role === "owner" && (
-                         <Crown className="h-3 w-3 text-yellow-500" />
-                       )}
-                     </p>
-                     <p className="text-xs text-muted-foreground truncate">
-                       {member.email}
-                     </p>
-                   </div>
-                 </div>
-               </Card>
-             ))}
-           </div>
-         </div>
+        <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {members.map((member) => (
+              <Card key={member.id} className="p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs sm:text-sm">
+                      {member.nickname.slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate flex items-center gap-2">
+                      {member.nickname}
+                      {member.role === "owner" && (
+                        <Crown className="h-3 w-3 text-yellow-500 shrink-0" />
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {member.email}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
        )}
  
-       <div className="mt-8 text-center">
-         <p className="text-xs text-muted-foreground">
-           ⚠️ 데모 버전: 데이터는 브라우저에만 저장됩니다
-         </p>
-       </div>
-     </div>
-   );
- }
+      <div className="mt-6 sm:mt-8 text-center">
+        <p className="text-xs text-muted-foreground">
+          ⚠️ 데모 버전: 데이터는 브라우저에만 저장됩니다
+        </p>
+      </div>
+    </div>
+  );
+}

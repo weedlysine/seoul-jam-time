@@ -80,16 +80,16 @@
      setIsLoading(false);
    };
  
-   return (
-     <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
-       <Card className="w-full max-w-md">
-         <CardHeader className="text-center">
-           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary">
-             <Music className="h-6 w-6 text-primary-foreground" />
-           </div>
-           <CardTitle className="text-2xl">밴드룸</CardTitle>
-           <CardDescription>서울 합주실 빈 시간 검색 서비스</CardDescription>
-         </CardHeader>
+  return (
+    <div className="container px-4 flex items-center justify-center min-h-[calc(100vh-8rem)] py-6 sm:py-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center pb-4 sm:pb-6">
+          <div className="mx-auto mb-3 sm:mb-4 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-primary">
+            <Music className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
+          </div>
+          <CardTitle className="text-xl sm:text-2xl">밴드룸</CardTitle>
+          <CardDescription className="text-sm">서울 합주실 빈 시간 검색 서비스</CardDescription>
+        </CardHeader>
          <CardContent>
            <Tabs defaultValue="login" className="w-full">
              <TabsList className="grid w-full grid-cols-2">
